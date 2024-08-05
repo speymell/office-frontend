@@ -58,7 +58,7 @@ const Expenses = () => {
     };
 
     axios
-      .post(`${process.env.REACT_APP_API_URL}/expenseData`, expenseData)
+      .post(`${process.env.REACT_APP_API_URL}/expenditure`, expenseData)
       .then((response) => {
         console.log("Расход добавлен:", response.data);
         handleSubmit();
