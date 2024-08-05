@@ -136,7 +136,7 @@ const TableComponent = () => {
 
   async function loadData() {
     try {
-      const response = await axios.get("http://localhost:4444/plan/latest", {});
+      const response = await axios.get(process.env.REACT_APP_API_URL, {});
       const data = response.data;
       data.reverse(); // Развернул даты
       setTaskData(data); // Обновляем taskData

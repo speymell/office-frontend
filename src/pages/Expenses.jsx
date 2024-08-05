@@ -58,7 +58,7 @@ const Expenses = () => {
     };
 
     axios
-      .post("http://localhost:4444/expenditure", expenseData)
+      .post(process.env.REACT_APP_API_URL, expenseData)
       .then((response) => {
         console.log("Расход добавлен:", response.data);
         handleSubmit();
@@ -74,11 +74,6 @@ const Expenses = () => {
 
   async function loadData() {
     try {
-      //   const response = await axios.get("http://localhost:4444/plan/latest", {});
-      //   const data = response.data;
-      //   data.reverse();
-      //   setTaskData(data);
-
       const checkAdmin = await axios
         .post("/auth/checkadmin", { login })
         .then((response) => {
