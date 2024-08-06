@@ -216,7 +216,28 @@ export const Work = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="button-login-work">Получил зарплату</button>
+                <button
+                  className="button-login-work"
+                  onClick={async () => {
+                    try {
+                      const login = window.localStorage.getItem("userWork");
+                      const response = await axios.post(`/pay-salary/${login}`);
+                      console.log(response.data);
+                      loadData();
+                    } catch (error) {
+                      if (error.response && error.response.data) {
+                        const errorMessage = error.response.data.message;
+                        alert(errorMessage);
+                        console.error(errorMessage);
+                      } else {
+                        alert("Unknown error");
+                        console.error(error);
+                      }
+                    }
+                  }}
+                >
+                  Получил зарплату
+                </button>
               </section>
             </main>
           </div>
