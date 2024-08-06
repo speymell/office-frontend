@@ -126,7 +126,7 @@
 @media (max-width: 800px) {
   .expenses-main {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-rows: auto auto; /* Change this line */
     grid-template-areas:
       "left-side"
       "right-side";

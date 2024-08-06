@@ -7,6 +7,7 @@ import styles2 from "../components/Work/Work.css";
 import styles3 from "../components/Expenses/Expenses.css";
 import { Navigate } from "react-router-dom";
 import logoutIcon from "./logout.svg";
+import ExcelJS from "exceljs";
 
 const Expenses = () => {
   const [taskData, setTaskData] = useState([]);
@@ -33,6 +34,83 @@ const Expenses = () => {
   const [amount, setAmount] = useState("");
   const [comment, setComment] = useState("");
 
+  const handleExportToExcel = async () => {
+    if (!selectedDateFrom || !selectedDateTo) {
+      alert("Пожалуйста, выберите даты");
+      return;
+    }
+
+    const startDate = selectedDateFrom.split("-").reverse().join(".");
+    const endDate = selectedDateTo.split("-").reverse().join(".");
+
+    try {
+      const response = await axios.post("/expenditure/bydate", {
+        startDate,
+        endDate,
+      });
+
+      const data = response.data;
+      createExcelFile(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const createExcelFile = (data) => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Expenses");
+
+    // Добавление заголовков
+    worksheet.addRow(["Дата", "Тип", "Цена", "Комментарий", "", "Итого"]);
+
+    // Группировка данных по категориям
+    const categories = {};
+    data.forEach((expense) => {
+      if (!categories[expense.type]) {
+        categories[expense.type] = 0;
+      }
+      categories[expense.type] += expense.price;
+    });
+
+    // Добавление данных
+    data.forEach((expense) => {
+      worksheet.addRow([
+        expense.date,
+        expense.type,
+        expense.price,
+        expense.comment,
+        "",
+      ]);
+    });
+
+    // Добавление итоговых сумм по категориям
+    let row = 1;
+    Object.keys(categories).forEach((category) => {
+      worksheet.getCell(`F${row + 1}`).value = category;
+      worksheet.getCell(`G${row + 1}`).value = categories[category];
+      worksheet.getCell(`F${row + 1}`).font = { bold: true };
+      row++;
+    });
+
+    // Экспорт файла
+    workbook.xlsx
+      .writeBuffer()
+      .then((buffer) => {
+        const blob = new Blob([buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Expenses_${selectedDateFrom}_${selectedDateTo}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
   const handleExpenseTypeChange = (event) => {
     setExpenseType(event.target.value);
   };
@@ -57,6 +135,7 @@ const Expenses = () => {
       price: amount,
     };
 
+    //process.env.REACT_APP_API_URL
     axios
       .post(`${process.env.REACT_APP_API_URL}/expenditure`, expenseData)
       .then((response) => {
@@ -122,24 +201,7 @@ const Expenses = () => {
     }
   };
 
-  const handleInputChange = (id, shiftIndex, value) => {
-    const updatedTaskData = [...taskData];
-    const task = updatedTaskData.find((item) => item._id === id);
-    if (task) {
-      task.logins[shiftIndex] = value;
-      setTaskData(updatedTaskData);
-    }
-  };
-
   const updateInterval = 10 * 1000; // 10 секунд
-
-  function showNotification(message) {
-    setNotification(message);
-  }
-
-  function hideNotification() {
-    setNotification(null);
-  }
 
   const handleSubmit = () => {
     const startDate = `${selectedDateFrom.split("-")[2]}.${
@@ -161,9 +223,6 @@ const Expenses = () => {
         console.error(error);
       });
   };
-
-  const dayData = taskData.filter((item) => item.type === "day");
-  const nightData = taskData.filter((item) => item.type === "night");
 
   return (
     <>
@@ -254,6 +313,12 @@ const Expenses = () => {
                   onClick={handleSubmit}
                 >
                   Обновить
+                </button>
+                <button
+                  className="schedule-block-input block-button"
+                  onClick={handleExportToExcel}
+                >
+                  Скачать в Excel
                 </button>
                 <div className="right-grid">
                   <div className="schedule-right-side-header">

@@ -134,6 +134,8 @@ const TableComponent = () => {
       });
   };
 
+  //process.env.REACT_APP_API_URL
+  // http://localhost:4444/
   async function loadData() {
     try {
       const response = await axios.get(

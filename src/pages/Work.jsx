@@ -216,6 +216,7 @@ export const Work = () => {
                     </li>
                   ))}
                 </ul>
+                <button className="button-login-work">Получил зарплату</button>
               </section>
             </main>
           </div>
