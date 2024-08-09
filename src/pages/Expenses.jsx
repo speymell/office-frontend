@@ -269,8 +269,8 @@ const Expenses = () => {
                     >
                       <option value="Еда">Еда</option>
                       <option value="Подписка">Подписка</option>
+                      <option value="USDT">USDT</option>
                       <option value="Прочее">Прочее</option>
-                      {/* Добавьте больше вариантов по мере необходимости */}
                     </select>
                   </label>
                   <label>
